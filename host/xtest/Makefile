@@ -72,7 +72,8 @@ srcs +=	adbg/src/adbg_case.c \
 	xtest_helpers.c \
 	xtest_main.c \
 	xtest_test.c \
-	xtest_uuid_helpers.c
+	xtest_uuid_helpers.c \
+	sservice_9000.c
 
 ifeq ($(CFG_SECURE_PARTITION)-$(CFG_SPMC_TESTS),y-y)
 srcs += ffa_spmc_1000.c
@@ -90,7 +91,12 @@ ifeq ($(CFG_PKCS11_TA),y)
 srcs += pkcs11_1000.c
 endif
 
-objs 	:= $(patsubst %.c,$(out-dir)/xtest/%.o, $(srcs))
+ifneq ($(OPTEE_SSERVICES_EXPORT),)
+CFLAGS += -I$(OPTEE_SSERVICES_EXPORT)/include
+LDFLAGS += -L$(OPTEE_SSERVICES_EXPORT)/lib64 -lsservices
+endif
+
+objs	:= $(patsubst %.c,$(out-dir)/xtest/%.o, $(srcs))
 
 ifeq ($(CFG_PKCS11_TA),y)
 CFLAGS += -DCFG_PKCS11_TA
